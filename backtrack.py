@@ -28,7 +28,7 @@ class Task:
                         if self.possible(x,y,n):
                             self.grid[x][y] = n
                             self.solve()
-                            self.grid[x][y] = 0  # backtrack - pozici vyprázdníme
+                            self.grid[x][y] = 0  # backtrack - pozici vynulujeme
                     return
         print(np.matrix(self.grid))
         #input("More?")
