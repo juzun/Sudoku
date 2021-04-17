@@ -5,7 +5,7 @@ class Task:
         self.grid=grid
 
     def possible(self,x,y,n):
-        for i in range (9): # od 0 do 8
+        for i in range (9):
             if self.grid[x][i] == n :
                 return False
         for i in range (9):
@@ -20,15 +20,26 @@ class Task:
                     return False
         return True        
 
-    def solve(self):
+    def backtrack(self):
         for y in range(9):
             for x in range(9):
                 if self.grid[x][y] == 0 :
                     for n in range(1,10):
                         if self.possible(x,y,n):
                             self.grid[x][y] = n
-                            self.solve()         # rekurze
+                            self.backtrack()         # rekurze
                             self.grid[x][y] = 0  # backtrack - pozici vynulujeme
                     return    # vrátí se o jednu úroveň výš
         print(np.matrix(self.grid))
-        #input("More?")
+
+    def backtrack_reverse(self):
+        for y in range(8,-1,-1):
+            for x in range(8,-1,-1):
+                if self.grid[x][y] == 0 :
+                    for n in range(1,10):
+                        if self.possible(x,y,n):
+                            self.grid[x][y] = n
+                            self.backtrack_reverse()         # rekurze
+                            self.grid[x][y] = 0  # backtrack - pozici vynulujeme
+                    return    # vrátí se o jednu úroveň výš
+        print(np.matrix(self.grid))

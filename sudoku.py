@@ -12,6 +12,7 @@ if __name__ == '__main__':
                 [0,0,0,4,1,9,0,0,5],
                 [0,0,0,0,8,0,0,7,9]]
              
-        bt.Task(grid).solve()
+        bt.Task(grid).backtrack()
+        bt.Task(grid).backtrack_reverse() # vhodné pro zadání, kdy je více známých hodnot na konci
 
 
