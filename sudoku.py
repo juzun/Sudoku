@@ -1,4 +1,4 @@
-import backtrack
+import backtrack as bt
 
 if __name__ == '__main__':
 
@@ -11,8 +11,7 @@ if __name__ == '__main__':
                 [0,6,0,0,0,0,2,8,0],
                 [0,0,0,4,1,9,0,0,5],
                 [0,0,0,0,8,0,0,7,9]]
+             
+        bt.Task(grid).solve()
 
-        bt_task=backtrack.Task(grid)  
-        bt_task.solve()      
-        #print(np.matrix(grid))
 
