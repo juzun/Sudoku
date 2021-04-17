@@ -1,5 +1,17 @@
-import numpy as np
 
+def print_grid(grid):
+    for i in range(len(grid)):
+        if i % 3 == 0 and i != 0:
+            print("- - - - - - - - - - - - ")
+        
+        for j in range(len(grid)):
+            if j % 3 == 0 and j != 0:
+                print(" | ", end = "")
+            
+            if j == 8:
+                print(grid[i][j])
+            else:
+                print(str(grid[i][j]) + " ", end = "")
 
 
 def possible (x,y,n):
@@ -32,8 +44,8 @@ def backtrack():
                         backtracks += 1
                         grid[x][y] = 0  # backtrack - pozici vynulujeme                            
                 return    # vrátí se o jednu úroveň výš
-    print(np.matrix(grid))
-    print(backtracks)
+    print_grid(grid)
+    print("Number of backtracks: " + str(backtracks))
 
 
 def backtrack_reverse():
@@ -49,8 +61,11 @@ def backtrack_reverse():
                         backtracks += 1
                         grid[x][y] = 0  # backtrack - pozici vynulujeme                            
                 return    # vrátí se o jednu úroveň výš
-    print(np.matrix(grid))
-    print(backtracks)
+    print_grid(grid)
+    print("Number of backtracks: " + str(backtracks))
+
+
+
 
 
 if __name__ == '__main__':
