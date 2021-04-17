@@ -20,6 +20,8 @@ class Task:
                     return False
         return True        
 
+    
+
     def backtrack(self):
         for y in range(9):
             for x in range(9):
@@ -28,9 +30,10 @@ class Task:
                         if self.possible(x,y,n):
                             self.grid[x][y] = n
                             self.backtrack()         # rekurze
-                            self.grid[x][y] = 0  # backtrack - pozici vynulujeme
+                            self.grid[x][y] = 0  # backtrack - pozici vynulujeme                            
                     return    # vrátí se o jednu úroveň výš
         print(np.matrix(self.grid))
+
 
     def backtrack_reverse(self):
         for y in range(8,-1,-1):
