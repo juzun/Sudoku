@@ -44,11 +44,16 @@ def fill_only_one_possible(grid, possibles):
     """
     Dosadí hodnotu do políček, do kterých jde dosadit jen jedno číslo
     """
-    last=deepcopy(grid)
-    ones={key: val for key, val in possibles.items() if len(val)==1}
-    for key, val in ones.items():
-        grid[key[0]][key[1]]=val[0]
-        update_possibles(grid, possibles, key[0],key[1])
+    
+    while(True):
+        last=deepcopy(grid)
+        ones={key: val for key, val in possibles.items() if len(val)==1}
+        for key, val in ones.items():
+            grid[key[0]][key[1]]=val[0]
+            update_possibles(grid, possibles, key[0],key[1])
+            print('only')
+        if last==grid:
+            break
 
 def check_row(grid, possibles):
     """
@@ -118,7 +123,7 @@ def outside_box(grid, possibles):
             I=list(range(3*i,3*i+3))
             J=list(range(3*j,3*j+3))
             box_possibles=[value for key, value in possibles.items()
-                     if key[0] in I and key[1] in J and len(value) > 0]
+                    if key[0] in I and key[1] in J and len(value) > 0]
             pe = set([x for b in box_possibles for x in b])
             
             for n in pe:
@@ -136,7 +141,7 @@ def outside_box(grid, possibles):
                     for k in range(9):
                         if n in possibles[k,y[0]] and k not in I:
                             possibles[k,y[0]].remove(n)
-                
+    
 def crook_solve(grid, possibles):
     crook_row(grid, possibles)
     crook_col(grid, possibles)
@@ -168,7 +173,7 @@ def crook(grid, possibles, sub):
         return 0
     
     for i in range(max_sub, max(min_sub-1,1), -1):
-        for key, value in {key: value for key, value in sub.items() if len(value) == i}.items():
+        for _, value in {key: value for key, value in sub.items() if len(value) == i}.items():
             cnt=0
             pe=list()
             for k2, v2 in sub.items():
@@ -177,7 +182,7 @@ def crook(grid, possibles, sub):
                         cnt+=1
                         pe.append(k2)
             if cnt==i:
-                for k, v in sub.items():
+                for k, _ in sub.items():
                     if k not in pe:
                         possibles[k]=[p for p in possibles[k] if p not in value]
 
@@ -188,6 +193,7 @@ def basic(grid, possibles):
     check_row(grid, possibles)
     check_box(grid, possibles)
     outside_box(grid, possibles)
+    fill_only_one_possible(grid, possibles)
 
 
 def prt(table):
@@ -247,7 +253,39 @@ if __name__=="__main__":
             [7,0,3,4,0,0,5,6,0],
             [0,0,0,0,0,0,0,0,0]]
 
-    grid=deepcopy(grid3)
+    zapeklite=[[8,0,4,2,0,0,3,0,0],
+                [0,2,3,0,0,0,8,0,7],
+                [0,0,0,0,9,0,0,1,0],
+                [7,0,0,0,0,0,0,6,8],
+                [0,0,8,0,0,0,9,0,0],
+                [9,6,0,0,0,0,0,0,5],
+                [0,1,0,0,7,0,0,0,0],
+                [5,0,7,0,0,0,6,8,0],
+                [0,0,6,0,0,5,2,0,1]]
+
+    s107 = [[2,0,0,1,5,4,0,8,0],
+            [5,0,6,0,0,8,0,0,0],
+            [0,0,0,6,0,3,0,0,0],
+            [0,9,0,5,0,0,0,0,0],
+            [0,0,7,0,0,0,4,0,0],
+            [0,0,0,0,0,6,0,0,1],
+            [8,0,5,2,3,0,1,0,6],
+            [0,0,0,0,8,0,0,0,9],
+            [0,0,0,0,0,0,0,0,3]]
+
+    s59  = [[0,0,0,0,0,0,0,7,1],
+            [0,1,0,0,0,2,9,4,0],
+            [0,0,0,0,7,0,0,0,6],
+            [0,5,0,0,0,6,0,0,0],
+            [0,9,0,0,0,0,7,0,0],
+            [2,3,6,0,1,4,0,5,0],
+            [0,0,0,0,0,0,0,0,0],
+            [0,2,4,6,0,0,3,8,0],
+            [3,0,0,0,4,5,6,1,7]]
+
+    
+
+    grid=deepcopy(s59)
 
     t1=time.time()
     solve(grid)
