@@ -1,5 +1,4 @@
 import time
-#Dan 
 
 def flatten(input):
     new_list = []
