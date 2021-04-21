@@ -1,67 +1,12 @@
 import time
 
-def flatten(input):
-    new_list = []
-    for i in input:
-        for j in i:
-            new_list.append(j)
-    return new_list
-
-
-def print_grid(grid):  # vykresli mřížku
-    for i in range(len(grid)):
-        if i % 3 == 0 and i != 0:
-            print("- - - - - - - - - - - - ")
-        
-        for j in range(len(grid)):
-            if j % 3 == 0 and j != 0:
-                print(" | ", end = "")
-            
-            if j == 8:
-                print(grid[i][j])
-            else:
-                print(str(grid[i][j]) + " ", end = "")
-
-
-def possible (grid, x, y, n):  # může být n na pozici [x,y]?
-    for i in range (9):
-        if grid[x][i] == n:
-            return False
-    for i in range (9):
-        if grid[i][y] == n:
-            return False
-    
-    x0 = (x//3)*3 # nastavíme počáteční souřadnice sub-pole, ve kterém je x, y
-    y0 = (y//3)*3
-    for i in range (3):
-        for j in range (3):
-            if grid[x0+i][y0+j] == n:
-                return False
-    return True        
-
-
-def nextEmptyCell(grid, x0, y0):   # najde další prázdnou buňku
-    for x in range(x0, 9):  # optimalizace - netřeba procházet všechny předchozí řádky, ušetříme čas
-        for y in range(9):
-            if grid[x][y] == 0:
-                return x, y
-    return -1, -1
-
-
-def nextEmptyCell_reverse(grid, x0, y0):
-    for x in range(x0,-1,-1):
-        for y in range(8,-1,-1):
-            if grid[x][y] == 0:
-                return x, y
-    return -1, -1
-
 
 # ***************************************************************** Backtrack
 
 def backtrack(grid, x0 = 0, y0 = 0):
     global backtracks
     x, y = nextEmptyCell(grid, x0, y0)
-    if x == -1:
+    if x == -1:   # pokud nebyla nalezena prázdná buňka
         return True
     for n in range(1, 10):
         if possible(grid, x, y, n):
@@ -107,6 +52,62 @@ def backtrack_impl(grid, x0 = 0, y0 = 0):
     return False
 
 
+
+
+
+# ***************************************************************** Pomocné metody
+
+
+
+def print_grid(grid):  # vykreslení mřížky
+    for i in range(len(grid)):
+        if i % 3 == 0 and i != 0:
+            print("- - - - - - - - - - - - ")
+        
+        for j in range(len(grid)):
+            if j % 3 == 0 and j != 0:
+                print(" | ", end = "")
+            
+            if j == 8:
+                print(grid[i][j])
+            else:
+                print(str(grid[i][j]) + " ", end = "")
+
+
+def possible (grid, x, y, n):  # zjistí, zda může být n na pozici [x,y]
+    for i in range (9):
+        if grid[x][i] == n:
+            return False
+    for i in range (9):
+        if grid[i][y] == n:
+            return False
+    
+    x0 = (x//3)*3 # nastavíme počáteční souřadnice sektoru, ve kterém je [x,y]
+    y0 = (y//3)*3
+    for i in range (3):
+        for j in range (3):
+            if grid[x0+i][y0+j] == n:
+                return False
+    return True        
+
+
+def nextEmptyCell(grid, x0, y0):   # najde další prázdnou buňku
+    for x in range(x0, 9):  # optimalizace - netřeba procházet všechny předchozí řádky, ušetříme čas
+        for y in range(9):
+            if grid[x][y] == 0:
+                return x, y
+    return -1, -1
+
+
+def nextEmptyCell_reverse(grid, x0, y0):
+    for x in range(x0,-1,-1):
+        for y in range(8,-1,-1):
+            if grid[x][y] == 0:
+                return x, y
+    return -1, -1
+
+
+
 sectors = [[0, 3, 0, 3], [3, 6, 0, 3], [6, 9, 0, 3], 
            [0, 3, 3, 6], [3, 6, 3, 6], [6, 9, 3, 6], 
            [0, 3, 6, 9], [3, 6, 6, 9], [6, 9, 6, 9]]
@@ -115,18 +116,18 @@ sectors = [[0, 3, 0, 3], [3, 6, 0, 3], [6, 9, 0, 3],
 def implicate(grid, x, y, n):
     global sectors
     grid[x][y] = n
-    impl = [(x, y, n)]  # seznam implikací - krom samotného dosazení [x,y] = n bude obsahovat i další možná dosazení v každém sektoru za použití následujícího algoritmu
+    impl = [(x, y, n)]  # list implikací - krom samotného dosazení [x,y] = n bude obsahovat i další možná dosazení v každém sektoru za použití následujícího algoritmu
     
     for s in range(len(sectors)):
-        empty_cells = []                 # seznam prázdných buněk v daném sektoru
-        sector_opt = {1, 2, 3, 4, 5, 6, 7, 8, 9}   # seznam chybějících čísel v daném sektoru - možnosti sektoru
+        empty_cells = []                 # list prázdných buněk v daném sektoru
+        sector_opt = {1, 2, 3, 4, 5, 6, 7, 8, 9}   # set chybějících čísel v daném sektoru - možnosti sektoru
         
         for i in range(sectors[s][0], sectors[s][1]):     # pro všechny prvky sektoru
             for j in range(sectors[s][2], sectors[s][3]):
                 if grid[i][j] != 0:
-                    sector_opt.remove(grid[i][j])  # souřadnice nenulové hodnoty vymaž ze seznamu možností
+                    sector_opt.remove(grid[i][j])  # souřadnice nenulové hodnoty vymaž ze setu možností
                 else:
-                    empty_cells.append([i, j])   # souřadnice nulové hodnoty přidej do seznamu prázdných buněk
+                    empty_cells.append([i, j])   # souřadnice nulové hodnoty přidej do listu prázdných buněk
             
         for c in range(len(empty_cells)):
             empty_cell = empty_cells[c]                     # prázdná buňka c
@@ -144,7 +145,7 @@ def implicate(grid, x, y, n):
                 n_o = rest.pop()
                 if possible(grid, x_o, y_o, n_o):  # pokud lze tuto možnost dosadit do tabulky
                     grid[x_o][y_o] = n_o           # vložme ji
-                    impl.append((x_o, y_o, n_o))   # a přidejme do seznamu implikací
+                    impl.append((x_o, y_o, n_o))   # a přidejme do listu implikací
     return impl
 
 
