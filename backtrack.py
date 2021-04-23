@@ -1,4 +1,126 @@
 import time
+import math
+import random
+
+
+def backtrack_fch(grid):
+    global backtracks
+    
+    empty_cells = get_empty_cells(grid)  # list souřadnic, kde jsou prázdné buňky
+    
+    if len(empty_cells) == 0:   # žádné prázdné buňky -> konec
+        print_grid(grid)
+        return True
+    
+    x, y = get_random_cell(empty_cells) # souřadnice náhodné prázdné buňky
+    
+    remaining_values = get_remaining_values(grid) # list listů možností pro každou buňku
+   
+    values = remaining_values[x*9 + y]  # list možností v náhodné buňce na [x,y]
+        
+    while (len(values)) != 0:
+        n = values.pop(random.randint(0, len(values)-1))
+
+        if forward_check(x, y, n, remaining_values):
+            grid[x][y] = n
+            if backtrack_fch(grid):
+                return True
+            grid[x][y] = 0
+    return False
+
+
+
+# vrátí souřadnice prázdných buněk
+def get_empty_cells(grid):
+    empty_cells = []
+    # scan the whole grid for empty cells
+    for x in range(9):
+        for y in range(9):
+            if grid[x][y] == 0:
+                empty_cells.append([x,y])
+    return empty_cells
+
+# vrátí náhodnou prázdnou buňku
+def get_random_cell(empty_cells):
+    return random.choice(empty_cells)  
+
+# vrátí list možností pro každou z 81 buněk
+# volá se jen jednou?
+def get_remaining_values(grid):
+    remaining_values = []    # seznam možností -  pořadí v listu určuje souřadnice, list na této pozici jsou možnosti v buňce
+    [remaining_values.append([*range(1,10)]) for i in range(81)]    
+    for x in range(len(grid)):
+        for y in range(len(grid[1])):
+            if grid[x][y] != 0:
+                n = grid[x][y]  
+                remaining_values = remove_values(x, y, n, remaining_values)   
+                
+    return remaining_values  
+
+# Removes the specified value from constrained squares and returns the new list
+def remove_values(x, y, n, remaining_values):
+        
+    remaining_values[y+x*9] = [0]  # na pozici [x,y] již je n - proto tam nemůže být nic jiného
+    
+    # následující 3 cykly vymažou hodnotu n z možností na řádku x, sloupci y a v bloku, kde se nachází [x,y]
+
+    for j in remaining_values[x*9 : x*9 + 9]:  # projde všechny sloupce řádku x
+        try:
+            j.remove(n)
+        except ValueError:  
+           pass 
+            
+    for i in range(9):
+        try:
+            remaining_values[y+9*i].remove(n)  # projde všechny řádky sloupce y
+        except ValueError:
+            pass
+
+    x0 = (x//3)*3
+    y0 = (y//3)*3
+    for i in range(3):
+        for j in range(3):
+            try:
+                remaining_values[(x0 + i)*9 + y0 + j].remove(n)
+            except ValueError:
+                pass
+
+    return remaining_values
+
+# checks to see if the value being removed is the only one left
+def forward_check(x, y, n, remaining_values):    
+
+    for i in range(9):      # projde všechny sloupce v řádku x
+        if i == y:
+            continue
+            
+        r = remaining_values[x*9+i]  # zbylé možnosti pro buňku [x,i]
+                
+        if len(r) == 1 and r[0] == n:  # pokud obsahuje r jen jeden prvek a tento prvek je n
+            return False
+     
+    for i in range(9):       # projde všechny řádky ve sloupci y
+        if i == x:
+            continue
+            
+        r = remaining_values[9*i+y]   # zbylé možnosti pro buňku [i,y]
+
+        if len(r) == 1 and r[0] == n:
+            return False
+
+    x0 = (x//3)*3
+    y0 = (y//3)*3  
+    for i in range(3):
+        for j in range(3):            
+            if [x0+i, y0+j] == [x, y]:
+                continue            
+            
+            r = remaining_values[(x0 + i)*9 + y0 + j]
+
+            if len(r) == 1 and r[0] == n:
+                return False                                 
+    return True                         
+
 
 
 # ***************************************************************** Backtrack
@@ -195,12 +317,13 @@ if __name__ == '__main__':
 
         grid3_sol = [[5, 1, 7, 6, 9, 8, 2, 3, 4], [2, 8, 9, 1, 3, 4, 7, 5, 6], [3, 4, 6, 2, 7, 5, 8, 9, 1], [6, 7, 2, 8, 4, 9, 3, 1, 5], [1, 3, 8, 5, 2, 6, 9, 4, 7], [9, 5, 4, 7, 1, 3, 6, 8, 2], [4, 9, 5, 3, 6, 2, 1, 7, 8], [7, 2, 3, 4, 8, 1, 5, 6, 9], [8, 6, 1, 9, 5, 7, 4, 2, 3]]
 
-        grid = grid2
-        grid_sol = grid2_sol
+        grid = grid1
+        grid_sol = grid1_sol
         
         backtracks = 0
+
         start = time.time()
-        backtrack_impl(grid)
+        backtrack_fch(grid)
         end = time.time() 
                 
 
