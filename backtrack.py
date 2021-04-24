@@ -22,8 +22,6 @@ def solve(grid, method):
     return backtracks
 
 
-
-
 # ***************************************************************** Backtrack
 
 def backtrack(grid, x0 = 0, y0 = 0):
@@ -100,8 +98,8 @@ def backtrack_forward_checking(grid):
     na stejném řádku, sloupci nebo v sektoru, není některá možnost jen jedna - to by
     znamenalo kolizi v budoucnu a rovnou tuto možnost zamítneme.
     Dále zde nejdeme postupně od první buňky, nýbrž jdeme vždy do té buňky, kde je 
-    nejméně možností. Ideální je stav, kdy najdeme vždy takovou buňku, kde je jen jedna
-    možnost - v takovém případě bude počet vrácení (backtracků) nulový.
+    nejméně možností (MRV). Ideální je stav, kdy najdeme vždy takovou buňku, kde je
+    jen jedna možnost - v takovém případě bude počet vrácení (backtracků) nulový.
     '''
     global backtracks
            
@@ -110,7 +108,7 @@ def backtrack_forward_checking(grid):
     if remaining_values.count([0]) == len(remaining_values):  # pokud již žádné možnosti nejsou, končíme
         return True
 
-    x, y, values = get_least(remaining_values)   # souřadnice buňky, kde je nejméně zbylých možností, values - zbylé možnosti 
+    x, y, values = get_MRV(remaining_values)   # souřadnice buňky, kde je nejméně zbylých možností, values - zbylé možnosti 
     
     for n in values:   # projdeme všechny možnosti v buňce [x,y]
         if forward_check(x, y, n, remaining_values):  # kontrola forward_check()
@@ -125,24 +123,30 @@ def backtrack_forward_checking(grid):
 
 # ***************************************************************** Základní pomocné metody
 
-# vrátí souřadnice další prázdné buňky od rádku x0
 def nextEmptyCell(grid, x0):
+    '''
+    Vrátí souřadnice další prázdné buňky od rádku x0.
+    '''
     for x in range(x0, 9):
         for y in range(9):
             if grid[x][y] == 0:
                 return x, y
     return -1, -1
 
-# vrátí souřadnice další prázdné buňky od konce (od řádku x0)
 def nextEmptyCell_reverse(grid, x0):
+    '''
+    Vrátí souřadnice předchozí prázdné buňky od konce (od řádku x0).
+    '''
     for x in range(x0,-1,-1):
         for y in range(8,-1,-1):
             if grid[x][y] == 0:
                 return x, y
     return -1, -1
 
- # zjistí, zda může být n na pozici [x,y]
 def possible (grid, x, y, n):
+    '''
+    Zjistí, zda může být n na pozici [x,y].
+    '''
     for i in range (9):
         if grid[x][i] == n:
             return False
@@ -150,7 +154,7 @@ def possible (grid, x, y, n):
         if grid[i][y] == n:
             return False
     
-    x0 = (x//3)*3 # nastavíme počáteční souřadnice sektoru, ve kterém je [x,y]
+    x0 = (x//3)*3 # nastavení počáteční souřadnice sektoru, ve kterém je [x,y]
     y0 = (y//3)*3
     for i in range (3):
         for j in range (3):
@@ -161,102 +165,109 @@ def possible (grid, x, y, n):
 
 # ***************************************************************** Pomocné metody pro implikaci
 
-# vloží do mřížky všechny implikovatelné hodnoty a vrátí list provedených implikací
 def implicate(grid, x, y, n):
+    '''
+    Vloží do mřížky všechny implikovatelné hodnoty a vrátí list provedených implikací.
+    '''
     global sectors
     grid[x][y] = n
-    impl = [(x, y, n)]  # list implikací - krom samotného dosazení [x,y] = n bude obsahovat i další možná dosazení v každém sektoru za použití následujícího algoritmu
+    impl = [(x, y, n)]  # list implikací
+                        # krom samotného dosazení [x,y] = n bude obsahovat i další možná dosazení v každém sektoru
+                        # zjistíme následujícím algoritmem
     
-    for s in range(len(sectors)):
+    for s in sectors:
         empty_cells = []                 # list prázdných buněk v daném sektoru
         sector_opt = {1, 2, 3, 4, 5, 6, 7, 8, 9}   # set chybějících čísel v daném sektoru - možnosti sektoru
         
-        for i in range(sectors[s][0], sectors[s][1]):     # pro všechny prvky sektoru
-            for j in range(sectors[s][2], sectors[s][3]):
+        for i in range(s[0], s[1]):     # pro všechny prvky sektoru
+            for j in range(s[2], s[3]):
                 if grid[i][j] != 0:
                     sector_opt.remove(grid[i][j])  # souřadnice nenulové hodnoty vymaž ze setu možností
                 else:
                     empty_cells.append([i, j])   # souřadnice nulové hodnoty přidej do listu prázdných buněk
             
-        for c in range(len(empty_cells)):
-            empty_cell = empty_cells[c]                     # prázdná buňka c
-            x_o, y_o = empty_cell[0], empty_cell[1]   # vytáhněme souřadnice prázdné buňky c
-            row, col = set(), set()             # set čísel obsažených v řádku c a sloupci c
+        for c in empty_cells:
+            x0, y0 = c                  # vytáhněme souřadnice prázdné buňky c
+            row, col = set(), set()       # set čísel obsažených v řádku c a sloupci c
             
-            for i in range(9):         # projdi čísla na daném řádku/sloupci c a každé číslo vlož do setu (právě jednou)
-                row.add(grid[x_o][i])   
-                col.add(grid[i][y_o])
+            for i in range(9):         # projdi čísla na daném řádku/sloupci c a každé číslo vlož do setu
+                row.add(grid[x0][i])    # jsou to sety, tedy se tam žádná hodnota nebude opakovat
+                col.add(grid[i][y0])
                         
-            rest = (sector_opt.difference(row)).difference(col)    # zbytek možností = možnosti sektoru - čísla obsažená v řádku a sloupci  
-                                                                   # proto je to set()... jednoduchá metoda difference()          
+            rest = (sector_opt.difference(row)).difference(col)    # zbytek možností = možnosti sektoru - čísla obsažená v řádku a sloupci      
 
             if len(rest) == 1:           # pokud nám zbyde jen jedna možnost
-                n_o = rest.pop()
-                if possible(grid, x_o, y_o, n_o):  # pokud lze tuto možnost dosadit do tabulky
-                    grid[x_o][y_o] = n_o           # vložme ji
-                    impl.append((x_o, y_o, n_o))   # a přidejme do listu implikací
+                n0 = rest.pop()
+                if possible(grid, x0, y0, n0):  # pokud lze tuto možnost dosadit do mřížky
+                    grid[x0][y0] = n0           # vložme ji
+                    impl.append((x0, y0, n0))   # a přidejme do listu implikací
     return impl
 
-# vrátí všechny implikace - vloží nulu tam, kde byla provedena změna v posledním kroku
 def unimplicate(grid, impl):  
+    '''
+    Vrátí všechny implikace - vloží nulu tam, kde byly dosazeny nějaké hodnoty v posledním kroku.
+    '''
     for i in range(len(impl)):
         grid[impl[i][0]][impl[i][1]] = 0
 
 
 # ***************************************************************** Pomocné metody pro Forward checking a MRV
 
-# vrátí list možností pro každou z 81 buněk
 def get_remaining_values(grid):
-    remaining_values = []    # seznam možností -  pořadí v listu určuje souřadnice, list na této pozici jsou možnosti v buňce
-    [remaining_values.append([*range(1,10)]) for i in range(81)]    
+    '''
+    Vrátí list možností pro každou z 81 buněk.
+    '''
+    remaining_values = []    # seznam možností - pořadí v listu určuje souřadnice, list na této pozici jsou možnosti v buňce
+    [remaining_values.append([*range(1,10)]) for i in range(81)]        
     for x in range(len(grid)):
-        for y in range(len(grid[1])):
-            if grid[x][y] != 0:
-                n = grid[x][y]  
-                remaining_values = remove_values(x, y, n, remaining_values)                
+        for y in range(len(grid)):
+            if grid[x][y] != 0:                
+                remaining_values = remove_values(x, y, grid[x][y], remaining_values)  # vymaž tuto hodnotu z příslušných možností
     return remaining_values
 
-# najde buňku, kde je nejméně zbylých možností
-# a vrátí souřadnice této buňky a v ní zbylé možnosti
-def get_least(remaining_values):
-    non_zero = []
-    for i in remaining_values:
-        if i != [0]:
-            if len(i) == 1:
-                return [remaining_values.index(i) //9, remaining_values.index(i) %9, i]
-            non_zero.append(i)
-    rem = min(non_zero, key=len)
-    return [remaining_values.index(rem) //9, remaining_values.index(rem) %9, rem]
-
-# vymaže z listu zbylých možností hodnoty, které již nejsou možnostmi (kvůli nové hodnotě n)
 def remove_values(x, y, n, remaining_values):
-        
+    '''
+    Vymaže z listu zbylých možností hodnoty, které již nejsou možnostmi (kvůli nové hodnotě n).
+    '''        
     remaining_values[y+x*9] = [0]  # na pozici [x,y] již je n - proto tam nemůže být nic jiného
     
-    # následující 3 cykly vymažou hodnotu n z možností na řádku x, sloupci y a v bloku, kde se nachází [x,y]
-
+    # následující 3 cykly vymažou hodnotu n z možností na řádku x, sloupci y a v sektoru, kde se nachází [x,y]
     for i in remaining_values[x*9 : x*9 + 9]:  # projde všechny sloupce řádku x        
         if n in i:
-            i.remove(n)
-            
+            i.remove(n)            
+    
     for i in range(9):        # projde všechny řádky sloupce y
         if n in remaining_values[y+9*i]:
-            remaining_values[y+9*i].remove(n)
-        
+            remaining_values[y+9*i].remove(n)        
+    
     x0 = (x//3)*3
     y0 = (y//3)*3
-    for i in range(3):       # projde všechny prvky v daném bloku
+    for i in range(3):       # projde všechny prvky v daném sektoru
         for j in range(3):
             if n in remaining_values[(x0 + i)*9 + y0 + j]:
                 remaining_values[(x0 + i)*9 + y0 + j].remove(n)
 
     return remaining_values
 
-# Zkontroluje, jestli vložená hodnota n na [x,y] nekoliduje s nějakou jinou, ještě nevloženou 
-# hodnotou - tak, že projde všechny zbývající možnosti na řádku, sloupci a v bloku a zkontroluje, 
-# zda někde nezbývá jen jedna možnost, která by byla právě n. V takovém případě vrací False.
-def forward_check(x, y, n, remaining_values):    
+def get_MRV(remaining_values):
+    '''
+    Najde buňku, kde je nejméně zbylých možností a vrátí souřadnice této buňky a v ní zbylé možnosti.
+    '''
+    non_zero = []
+    for i in remaining_values:
+        if i != [0]:
+            if len(i) == 1:  # pokud najdeme buňku, kde je jen jedna možnost, rovnou ji vracíme
+                return [remaining_values.index(i) //9, remaining_values.index(i) %9, i]
+            non_zero.append(i)
+    mrv = min(non_zero, key=len)  # pokud nenajdeme buňku, kde je jen jedna možnost, vrátíme tu, kde je možností nejméně
+    return [remaining_values.index(mrv) //9, remaining_values.index(mrv) %9, mrv]
 
+def forward_check(x, y, n, remaining_values):    
+    '''
+    Zkontroluje, jestli vložená hodnota n na [x,y] nekoliduje s nějakou jinou, ještě nevloženou 
+    hodnotou - tak, že projde všechny zbývající možnosti na řádku, sloupci a v sektoru a zkontroluje, 
+    zda někde nezbývá jen jedna možnost, která by byla právě n. V takovém případě vrací False.
+    '''
     for i in range(9):      # projde všechny sloupce v řádku x
         if i == y:
             continue            
@@ -273,7 +284,7 @@ def forward_check(x, y, n, remaining_values):
 
     x0 = (x//3)*3
     y0 = (y//3)*3  
-    for i in range(3):
+    for i in range(3):    # projde všechny prvky v sektoru, kde je [x,y]
         for j in range(3):            
             if [x0+i, y0+j] == [x, y]:
                 continue            
@@ -281,36 +292,3 @@ def forward_check(x, y, n, remaining_values):
             if len(r) == 1 and r[0] == n:
                 return False
     return True
-
-
-
-
-
-# if __name__ == '__main__':
-
-#         grid1 = [[5,3,0,0,7,0,0,0,0],
-#                  [6,0,0,1,9,5,0,0,0],
-#                  [0,9,8,0,0,0,0,6,0],
-#                  [8,0,0,0,6,0,0,0,3],
-#                  [4,0,0,8,0,3,0,0,1],
-#                  [7,0,0,0,2,0,0,0,6],
-#                  [0,6,0,0,0,0,2,8,0],
-#                  [0,0,0,4,1,9,0,0,5],
-#                  [0,0,0,0,8,0,0,7,9]]
-
-#         grid1_sol = [[5, 3, 4, 6, 7, 8, 9, 1, 2], [6, 7, 2, 1, 9, 5, 3, 4, 8], [1, 9, 8, 3, 4, 2, 5, 6, 7], [8, 5, 9, 7, 6, 1, 4, 2, 3], [4, 2, 6, 8, 5, 3, 7, 9, 1], [7, 1, 3, 9, 2, 4, 8, 5, 6], [9, 6, 1, 5, 3, 7, 2, 8, 4], [2, 8, 7, 4, 1, 9, 6, 3, 5], [3, 4, 5, 2, 8, 6, 1, 7, 9]]
-
-#         grid = grid1
-#         grid_sol = grid1_sol
-
-#         start = time.time()
-#         b = solve(grid, "1")
-#         end = time.time() 
-                       
-
-#         prt(grid)
-#         print("Number of backtracks: " + str(backtracks))
-#         print(end-start)
-
-#         print(grid_sol == grid)
-

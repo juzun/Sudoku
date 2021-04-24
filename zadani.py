@@ -81,15 +81,15 @@ s59_sol = [[8, 6, 3, 4, 5, 9, 2, 7, 1], [5, 1, 7, 3, 6, 2, 9, 4, 8], [9, 4, 2, 8
 
 
 
-grid = zapeklite
-grid_sol = zapeklite_sol
-backtracks = -1
+grid = s107
+grid_sol = s107_sol
 
-#method = "crook"
+method = "crook"
 #method = "backtrack"
 #method = "reverse backtrack"
-method = "backtrack with implications"
-#method = "backtrack with forward checking"
+#method = "backtrack with implications"
+#method = "backtrack with forward checking and MRV"
+
 
 start = time.time()
 
@@ -99,7 +99,7 @@ elif method == "reverse backtrack":
     backtracks = backtrack.solve(grid, "2")
 elif method == "backtrack with implications":
     backtracks = backtrack.solve(grid, "3")
-elif method == "backtrack with forward checking":
+elif method == "backtrack with forward checking and MRV":
     backtracks = backtrack.solve(grid, "4")
 elif method == "crook":
     crook.solve(grid)
@@ -112,7 +112,11 @@ print_grid(grid)
 print("Solution is correct.") if (grid_sol == grid) else print("Solution is incorrect.")
 
 print("Used method: " + str(method))
-if backtracks != -1:
-    print("Number of backtracks: " + str(backtracks))
+
+if 'backtracks' in locals():
+    try:
+        print("Number of backtracks: " + str(backtracks))
+    except ValueError:
+        pass
 
 print("Time: " + str(end-start))
