@@ -51,7 +51,6 @@ def fill_only_one_possible(grid, possibles):
         for key, val in ones.items():
             grid[key[0]][key[1]]=val[0]
             update_possibles(grid, possibles, key[0],key[1])
-            print('only')
         if last==grid:
             break
 
@@ -149,40 +148,41 @@ def crook_solve(grid, possibles):
 
 def crook_row(grid, possibles):
     for i in range(9):
-        possible_sub={key: value for key, value in possibles.items() if key[0]==i and len(value)>0}
-        crook(grid, possibles, possible_sub)
+        segment={key: value for key, value in possibles.items() if key[0]==i and len(value)>0}
+        crook(grid, possibles, segment)
 
 def crook_col(grid, possibles):
     for i in range(9):
-        possible_sub={key: value for key, value in possibles.items() if key[1]==i and len(value)>0}
-        crook(grid, possibles, possible_sub)
+        segment={key: value for key, value in possibles.items() if key[1]==i and len(value)>0}
+        crook(grid, possibles, segment)
 
 def crook_box(grid, possibles):
     for i in range(3):
         for j in range(3):
             I=list(range(3*i,3*i+3))
             J=list(range(3*j,3*j+3))
-            possible_sub={key: value for key, value in possibles.items() if key[0] in I and key[1] in J and len(value)>0}
-            crook(grid, possibles, possible_sub)
+            segment={key: value for key, value in possibles.items() if key[0] in I and key[1] in J and len(value)>0}
+            crook(grid, possibles, segment)
 
-def crook(grid, possibles, sub):
-    try:
-        min_sub = min((len(v)) for _, v in sub.items())
-        max_sub = max((len(v)) for _, v in sub.items())
-    except ValueError:
-        return 0
+def crook(grid, possibles, segment):
+    lengths=[(len(v)) for _, v in segment.items()]
+    if lengths:
+        min_segment, max_segment = min(lengths), max(lengths)
+    else:
+        return
     
-    for i in range(max_sub, max(min_sub-1,1), -1):
-        for _, value in {key: value for key, value in sub.items() if len(value) == i}.items():
+    for i in range(max_segment, max(min_segment-1,1), -1):
+        for _, value in {key: value for key, value in segment.items() 
+                                if len(value) == i}.items():
             cnt=0
             pe=list()
-            for k2, v2 in sub.items():
+            for k2, v2 in segment.items():
                 if len(v2)<=i:
                     if set(value).issubset(set(v2)):
                         cnt+=1
                         pe.append(k2)
             if cnt==i:
-                for k, _ in sub.items():
+                for k, _ in segment.items():
                     if k not in pe:
                         possibles[k]=[p for p in possibles[k] if p not in value]
 
@@ -206,6 +206,36 @@ def prt(table):
         if i==8:
             print("└───────┴───────┴───────┘")
             
+def loop(grid, possibles):
+    while(True):
+        last=deepcopy(grid)
+        basic(grid, possibles)
+        crook_solve(grid, possibles)
+        if grid==last:
+            for x in range(9):
+                for y in range(9):
+                    if grid[x][y]==0:
+                        for n in range(1,10):
+                            if n in possibles[x,y]:
+                                # vytvoreni bodu navratu, abuchom se meli kam 
+                                # vratit, kdyby n nepatrilo na pozici x,y
+                                poss=deepcopy(possibles)
+                                gr=deepcopy(grid)
+                                # zkusime dosadit n do x,y a upravime possibles
+                                grid[x][y]=n
+                                update_possibles(grid, possibles, x,y)
+                                # budeme dal resit pomoci funkce loop, prvne 
+                                # klasickymi postupy, pripadne zase backtrackem
+                                loop(grid, possibles)
+                                # pokud se z backtracku vratime, meli jsme 
+                                # spatny predpoklad, ze na pozici x,y je n, 
+                                # takze se vratime k bodu navratu a zkousime dal
+                                possibles=deepcopy(poss)
+                                grid=deepcopy(gr)
+                        return
+            if grid==last:
+                break
+
 def solve(grid):
     possibles=dict()
     for i in range(9):
@@ -214,13 +244,7 @@ def solve(grid):
             if grid[i][j]!=0:
                 possibles[i,j]=[]
     create_possibles(grid, possibles)
-
-    while(True):
-        last=deepcopy(grid)
-        basic(grid, possibles)
-        crook_solve(grid, possibles)
-        if grid==last:
-            break
+    loop(grid, possibles)
 
 if __name__=="__main__":
     grid1 =[[5,3,0,0,7,0,0,0,0],
@@ -285,7 +309,7 @@ if __name__=="__main__":
 
     
 
-    grid=deepcopy(s59)
+    grid=deepcopy(zapeklite)
 
     t1=time.time()
     solve(grid)
