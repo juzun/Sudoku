@@ -51,7 +51,6 @@ def fill_only_one_possible(grid, possibles):
         for key, val in ones.items():
             grid[key[0]][key[1]]=val[0]
             update_possibles(grid, possibles, key[0],key[1])
-            print('only')
         if last==grid:
             break
 

@@ -2,13 +2,13 @@ import backtrack
 import crook
 import time
 
-def prt(table):
+def print_grid(grid):
     for i in range(9):
         if i==0:
             print("┌───────┬───────┬───────┐")
         if i==3 or i==6:
             print("├───────┼───────┼───────┤")
-        print("│ {} {} {} │ {} {} {} │ {} {} {} │".format(*table[i]))
+        print("│ {} {} {} │ {} {} {} │ {} {} {} │".format(*grid[i]))
         if i==8:
             print("└───────┴───────┴───────┘")
 
@@ -83,17 +83,36 @@ s59_sol = [[8, 6, 3, 4, 5, 9, 2, 7, 1], [5, 1, 7, 3, 6, 2, 9, 4, 8], [9, 4, 2, 8
 
 grid = zapeklite
 grid_sol = zapeklite_sol
+backtracks = -1
 
-backtracks = 0
+#method = "crook"
+#method = "backtrack"
+#method = "reverse backtrack"
+method = "backtrack with implications"
+#method = "backtrack with forward checking"
 
 start = time.time()
-backtrack.backtrack(grid)
+
+if method == "backtrack":
+    backtracks = backtrack.solve(grid, "1")
+elif method == "reverse backtrack":
+    backtracks = backtrack.solve(grid, "2")
+elif method == "backtrack with implications":
+    backtracks = backtrack.solve(grid, "3")
+elif method == "backtrack with forward checking":
+    backtracks = backtrack.solve(grid, "4")
+elif method == "crook":
+    crook.solve(grid)
+
 end = time.time() 
-        
 
-prt(grid)
-print(end-start)
+print("Solution: ")
+print_grid(grid)
 
-print(grid_sol == grid)
+print("Solution is correct.") if (grid_sol == grid) else print("Solution is incorrect.")
 
+print("Used method: " + str(method))
+if backtracks != -1:
+    print("Number of backtracks: " + str(backtracks))
 
+print("Time: " + str(end-start))
