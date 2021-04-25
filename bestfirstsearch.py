@@ -23,7 +23,6 @@ class Node:  # každá nová mřížka reprezentuje stav - uzel staového prosto
             for c in range(0,9):
                 if self.grid[r][c] == 0:
                     return False
-        print("Sudoku vyřešeno")
         return True
 
     def getMostConstrainedCell(self):  # najdeme prázdnou buňku s nejméně možnostmi na doplnění
@@ -77,6 +76,9 @@ class Node:  # každá nová mřížka reprezentuje stav - uzel staového prosto
     def getPossibilitiesForCell(self,r,c):  # vrátí už přímo konkrétní čísla, která je možno doplnit
         possibilities = []
 
+        if self.grid[r][c] != 0:
+            return possibilities
+
         used = [False] * 9
         r_t = 0
         c_t = 0
@@ -98,49 +100,38 @@ class Node:  # každá nová mřížka reprezentuje stav - uzel staového prosto
                 possibilities.append(k+1)
         return possibilities
 
-    def printNode(self): # tisk
-        for i in range(9):
-            if i==0:
-                print("┌───────┬───────┬───────┐")
-            if i==3 or i==6:
-                print("├───────┼───────┼───────┤")
-            print("│ {} {} {} │ {} {} {} │ {} {} {} │".format(*self.grid[i]))
-            if i==8:
-                print("└───────┴───────┴───────┘")
+#    def printNode(self): # tisk
+#        for i in range(9):
+#            if i==0:
+#                print("┌───────┬───────┬───────┐")
+#            if i==3 or i==6:
+#                print("├───────┼───────┼───────┤")
+#            print("│ {} {} {} │ {} {} {} │ {} {} {} │".format(*self.grid[i]))
+#            if i==8:
+#                print("└───────┴───────┴───────┘")
     
 
 
-def bestfirstsearch(grid):  
+def solve(grid):  # spousteci metoda
     n = Node(grid)  # inicializace třídy
-    solve(n)   # solver
+    solve_sudoku(n)   # solver
 
-def solve(n): # rekurze
+def solve_sudoku(n): # rekurze
     if n.isSolved():  
-        n.printNode()
-        return True
+        #n.printNode()
+        return n.grid
         
     candidates = n.getCandidates() 
 
     for k in range(0,len(candidates)): # uvažuji všechny nové mřížky které vznikly změnou hodnoty jedné buňky
-        if solve(candidates[k]): # rekurze
+        if solve_sudoku(candidates[k]): # rekurze
             return True
     
     return False
 
-if __name__=="__main__":
-    grid =[[5,3,0,0,7,0,0,0,0],
-            [6,0,0,1,9,5,0,0,0],
-            [0,9,8,0,0,0,0,6,0],
-            [8,0,0,0,6,0,0,0,3],
-            [4,0,0,8,0,3,0,0,1],
-            [7,0,0,0,2,0,0,0,6],
-            [0,6,0,0,0,0,2,8,0],
-            [0,0,0,4,1,9,0,0,5],
-            [0,0,0,0,8,0,0,7,9]]
     
-    t1=time.time()
-    bestfirstsearch(grid) # spousteci metoda
-    t2=time.time()
+#solve(grid) # spousteci metoda
+    
 
-    print("time: ",t2-t1, "s")
+    
     
