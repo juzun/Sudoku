@@ -1,5 +1,6 @@
 import backtrack
 import crook
+import bestfirstsearch
 import time
 
 def print_grid(grid):
@@ -81,15 +82,15 @@ s59_sol = [[8, 6, 3, 4, 5, 9, 2, 7, 1], [5, 1, 7, 3, 6, 2, 9, 4, 8], [9, 4, 2, 8
 
 
 
-grid = s107
-grid_sol = s107_sol
+grid = grid3
+grid_sol = grid3_sol
 
-method = "crook"
+#method = "crook"
 #method = "backtrack"
 #method = "reverse backtrack"
 #method = "backtrack with implications"
 #method = "backtrack with forward checking and MRV"
-
+method = "best first search"
 
 start = time.time()
 
@@ -103,6 +104,8 @@ elif method == "backtrack with forward checking and MRV":
     backtracks = backtrack.solve(grid, "4")
 elif method == "crook":
     crook.solve(grid)
+elif method == "best first search":
+    bestfirstsearch.solve(grid)
 
 end = time.time() 
 
