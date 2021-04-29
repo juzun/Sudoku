@@ -87,8 +87,7 @@ def check_col(grid, possibles):
                 keys=[key for key, value in possibles.items() if key[1]==i and element in value]
                 grid[keys[0][0]][keys[0][1]]=element
                 update_possibles(grid, possibles, keys[0][0],keys[0][1])
-
-    
+   
 def check_box(grid, possibles):
     """
     Zkontroluje, jestli v některém boxu není číslo, 
@@ -186,7 +185,6 @@ def crook(grid, possibles, segment):
                     if k not in pe:
                         possibles[k]=[p for p in possibles[k] if p not in value]
 
-
 def basic(grid, possibles):
     fill_only_one_possible(grid, possibles)
     check_col(grid, possibles)
@@ -194,17 +192,6 @@ def basic(grid, possibles):
     check_box(grid, possibles)
     outside_box(grid, possibles)
     fill_only_one_possible(grid, possibles)
-
-
-def prt(table):
-    for i in range(9):
-        if i==0:
-            print("┌───────┬───────┬───────┐")
-        if i==3 or i==6:
-            print("├───────┼───────┼───────┤")
-        print("│ {} {} {} │ {} {} {} │ {} {} {} │".format(*table[i]))
-        if i==8:
-            print("└───────┴───────┴───────┘")
             
 def loop(grid, possibles):
     while(True):
@@ -245,75 +232,3 @@ def solve(grid):
                 possibles[i,j]=[]
     create_possibles(grid, possibles)
     loop(grid, possibles)
-
-if __name__=="__main__":
-    grid1 =[[5,3,0,0,7,0,0,0,0],
-            [6,0,0,1,9,5,0,0,0],
-            [0,9,8,0,0,0,0,6,0],
-            [8,0,0,0,6,0,0,0,3],
-            [4,0,0,8,0,3,0,0,1],
-            [7,0,0,0,2,0,0,0,6],
-            [0,6,0,0,0,0,2,8,0],
-            [0,0,0,4,1,9,0,0,5],
-            [0,0,0,0,8,0,0,7,9]]
-
-    grid2 =[[5,1,7,6,0,0,0,3,4],
-            [2,8,9,0,0,4,0,0,0],
-            [3,4,6,2,0,5,0,9,0],
-            [6,0,2,0,0,0,0,1,0],
-            [0,3,8,0,0,6,0,4,7],
-            [0,0,0,0,0,0,0,0,0],
-            [0,9,0,0,0,0,0,7,8],
-            [7,0,3,4,0,0,5,6,0],
-            [0,0,0,0,0,0,0,0,0]]
-
-    grid3 =[[5,1,7,6,0,0,0,3,4],
-            [0,8,9,0,0,4,0,0,0],
-            [3,0,6,2,0,5,0,9,0],
-            [6,0,0,0,0,0,0,1,0],
-            [0,3,0,0,0,6,0,4,7],
-            [0,0,0,0,0,0,0,0,0],
-            [0,9,0,0,0,0,0,7,8],
-            [7,0,3,4,0,0,5,6,0],
-            [0,0,0,0,0,0,0,0,0]]
-
-    zapeklite=[[8,0,4,2,0,0,3,0,0],
-                [0,2,3,0,0,0,8,0,7],
-                [0,0,0,0,9,0,0,1,0],
-                [7,0,0,0,0,0,0,6,8],
-                [0,0,8,0,0,0,9,0,0],
-                [9,6,0,0,0,0,0,0,5],
-                [0,1,0,0,7,0,0,0,0],
-                [5,0,7,0,0,0,6,8,0],
-                [0,0,6,0,0,5,2,0,1]]
-
-    s107 = [[2,0,0,1,5,4,0,8,0],
-            [5,0,6,0,0,8,0,0,0],
-            [0,0,0,6,0,3,0,0,0],
-            [0,9,0,5,0,0,0,0,0],
-            [0,0,7,0,0,0,4,0,0],
-            [0,0,0,0,0,6,0,0,1],
-            [8,0,5,2,3,0,1,0,6],
-            [0,0,0,0,8,0,0,0,9],
-            [0,0,0,0,0,0,0,0,3]]
-
-    s59  = [[0,0,0,0,0,0,0,7,1],
-            [0,1,0,0,0,2,9,4,0],
-            [0,0,0,0,7,0,0,0,6],
-            [0,5,0,0,0,6,0,0,0],
-            [0,9,0,0,0,0,7,0,0],
-            [2,3,6,0,1,4,0,5,0],
-            [0,0,0,0,0,0,0,0,0],
-            [0,2,4,6,0,0,3,8,0],
-            [3,0,0,0,4,5,6,1,7]]
-
-    
-
-    grid=deepcopy(zapeklite)
-
-    t1=time.time()
-    solve(grid)
-    t2=time.time()
-
-    prt(grid)
-    print("time: ",t2-t1, "s")
