@@ -85,10 +85,10 @@ s59_sol = [[8, 6, 3, 4, 5, 9, 2, 7, 1], [5, 1, 7, 3, 6, 2, 9, 4, 8], [9, 4, 2, 8
 grid = grid1
 grid_sol = grid1_sol
 
-method = "backtrack"
+#method = "backtrack"
 #method = "reverse backtrack"
 #method = "backtrack with implications"
-#method = "backtrack with forward checking and MRV"
+method = "backtrack with forward checking and MRV"
 #method = "best first search"
 #method = "crook"
 
@@ -112,7 +112,7 @@ end = time.time()
 print("Solution: ")
 print_grid(grid)
 
-print("Solution is correct.") if (grid_sol == grid) else print("Solution is incorrect.")
+print("Solution is correct.") if (grid_sol == grid) else print("Solution is incorrect, or there are more then one correct solution, which means, that Sudoku entry is wrong.")
 
 print("Used method: " + str(method))
 
